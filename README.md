@@ -62,3 +62,47 @@ No reference to the original voiceclone folder is needed.
 
 Run `python -m unittest test_app` to check the login gate and disabled-generation
 behaviour. These tests use a dummy password and never call the GPU service.
+
+## Usage tracker and estimated costs
+
+Each generation requires a title and working tracking. Use Google Apps Script
+attached to your spreadsheet. There is no service account or separate Google Cloud
+setup. Follow [SETUP_TRACKER.md](SETUP_TRACKER.md) and paste
+[UsageTracker.gs](UsageTracker.gs) into your spreadsheet's script editor.
+
+The script creates a Usage tab and uses a shared secret to accept writes from
+Streamlit. Requests update the same row by request ID; a script lock prevents
+simultaneous requests from creating duplicates. Keep this raw tab unsorted while
+requests are running; use a filter view or another tab for reporting.
+
+The app stores only metadata: request ID, UTC start/end, title, status, voice IDs,
+word count, estimated/actual audio duration, worker/client elapsed times, rates,
+resource assumptions and estimated USD cost. It sends no script or audio to Sheets.
+The script escapes formula-like titles so they remain text.
+No student identity is collected by this shared-password app.
+
+Cost calculation: `(GPU hourly rate + CPU hourly rate × assumed cores + RAM hourly
+rate × assumed GiB) × estimated compute seconds / 3600`. Defaults use the organiser's
+2026-09-28 rates: L4 $0.80/hour, CPU $0.0473/core/hour, RAM $0.008/GiB/hour.
+One CPU core and 4 GiB RAM are estimation assumptions, not measured allocations.
+Before generation, speech length assumes 150 words/minute, capped at 30 seconds;
+compute time assumes 2.13 seconds per audio second plus 30 seconds startup/loading.
+After generation, the estimate uses reported worker time plus an assumed 8 seconds
+of startup overhead. Client wall time is logged separately because queuing and
+network delay are not necessarily billable GPU time.
+
+These estimates exclude deployment builds, storage, credits and retries. Listed
+token-model prices do not apply to this self-hosted Qwen TTS worker. No remaining
+credit balance is inferred from the pasted plan history. Rates and assumptions
+are configurable in Streamlit Secrets. This is not an invoice or a budget cap.
+
+If the initial Sheets write fails, no GPU request is submitted. If the final write
+fails, the audio stays downloadable and the session keeps a metadata-only retry.
+That retry never repeats generation. You can also download the unsaved JSON record.
+Do not sign out or close the page before saving it. A browser/server interruption
+can leave a `started` row; it means outcome unknown, not zero cost. This frontend
+tracker is not a durable backend audit queue. Failed requests retain blank measured
+cost fields because their actual billed runtime is unknown.
+
+Run `python -m unittest test_app test_usage` for offline tests of authentication,
+cost arithmetic, logging failure handling and duplicate prevention on UI reruns.
