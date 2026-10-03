@@ -64,7 +64,7 @@ with st.expander('Connection'):
         except Exception:
             st.error('Could not connect. Ask the organiser to check the server credentials.')
 
-names = {'Shontelle · preview': 'shontelle-preview', 'Trinidadian weather voice · preview': 'weather-preview'}
+names = {'Shontelle · preview': 'shontelle-preview', 'Kiomi · preview': 'kiomi-preview'}
 left, right = st.columns(2)
 a = left.selectbox('Speaker A', list(names), index=0)
 b = right.selectbox('Speaker B', list(names), index=1)

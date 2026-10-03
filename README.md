@@ -29,7 +29,7 @@ This frontend calls the authenticated Modal function `generate_preview` in
 `caribbean-podcast-studio`, in the Modal environment selected by the SDK (normally
 `main`). It does not deploy a backend or start a GPU when the page loads.
 The backend must already exist in the workspace associated with the credentials.
-It currently offers Shontelle and Trinidadian weather preview references.
+It currently offers Shontelle and Kiomi preview references.
 
 Both frontend and backend are in short-test mode: **60 words including labels**
 and **30 seconds maximum**. Use dialogue like:
